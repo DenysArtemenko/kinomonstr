@@ -1,0 +1,87 @@
+<template>
+  <div class="films__block container">
+    <div v-if="loaded" class="row films__block-table">
+      <FilmItem class="film__item"
+
+            v-for="(item,idx) in likedFilms" :key="idx"
+            :item="item"
+      />
+    </div>
+  </div>
+</template>
+
+<script>
+import axios from "axios";
+import FilmItem from "./FilmItem";
+
+export default {
+  name: "TableLikedFilms",
+  components: {FilmItem},
+  data(){
+    return{
+      user: '',
+      username: '',
+      users: [],
+      likedFilms: [Array],
+      pageNumber: 0,
+      filmNumber: 0,
+      loaded: false
+    }
+  },
+  props: {
+    allPageFilms: [Array]
+  },
+  mounted() {
+    this.user = localStorage.user
+    this.username = localStorage.username
+    axios.get('http://localhost:5000/auth/users')
+        .then(response => {
+          this.users = response.data
+        })
+    this.findLikedElement(this.allPageFilms, this.pageNumber, this.filmNumber)
+    this.loaded = true
+  },
+  methods: {
+    findLikedElement(item, i, j) {
+      if (item.length>0 && this.users.length>0) {
+        console.log(123)
+        for (let k of this.users) {
+          if (k.username === this.username) {
+            console.log(456)
+            for (i = 0; i < 100; i++) {
+              for (j = 0; j < 20; j++) {
+                for (let n; n<k.film.length; n++)
+                if (item[i][j].original_title === k.film[n].filmName) {
+                  console.log(678)
+                  this.likedFilms.push(item[i][j])
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+  }
+}
+</script>
+
+<style scoped>
+.films__block{
+  margin: 0 auto !important;
+}
+
+.films__block-table{
+  justify-content: center;
+}
+
+.container{
+  margin: 0 auto !important;
+}
+
+.row{
+  margin: 0 auto !important;
+}
+.film__item{
+  margin: 30px;
+}
+</style>
