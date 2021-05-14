@@ -71,7 +71,8 @@ export default {
       nameState: null,
       submittedNames: [],
       username: '',
-      password: ''
+      password: '',
+      users: []
     }
   },
   methods: {
@@ -91,23 +92,41 @@ export default {
       this.handleSubmitLogin()
     },
     handleSubmitLogin() {
-      localStorage.username = this.username
+
       // localStorage.password = this.password
         axios.post('http://localhost:5000/auth/login',  {
         username: this.username,
         password: this.password,
       })
-          .then(function (response) {
-            console.log(response.data);
 
-          })
-          .catch(function (error) {
-            console.log(error);
+      axios.get('http://localhost:5000/auth/users').then(response => {
 
-            alert("Неверный логин или пароль")
-          });
+        this.users = response.data
 
-      // this.$router.push(`/${this.username}`)
+        for (let i = 0; i < this.users.length; i++) {
+          // console.log(this.users[i].username , this.username)
+          if (this.username === this.users[i].username) {
+            localStorage.username = this.username
+            return window.location.reload()
+
+          }
+        }
+        if(this.username !== this.users[this.users.length -1].username){
+          alert("Неверный логин или пароль")
+        }
+      })
+
+          // .then(function (response) {
+          //   console.log(response.data);
+          //
+          // })
+          // .catch(function (error) {
+          //   console.log(error);
+          //
+          //   alert("Неверный логин или пароль")
+          // });
+
+
     },
     handleSubmitRegistration() {
       axios.post('http://localhost:5000/auth/registration',  {

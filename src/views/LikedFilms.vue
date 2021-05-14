@@ -1,9 +1,9 @@
 <template>
   <div>
-    <NavBar/>
-    <h1>Понравившееся фильмы</h1>
+        <NavBar/>
+        <h1>Понравившееся фильмы</h1>
 
-    <TableLikedFilms :allPageFilms="allPageFilms"/>
+        <TableLikedFilms v-if="loaded" :allPageFilms="allPageFilms"/>
   </div>
 </template>
 
@@ -16,11 +16,16 @@ export default {
   name: "LikedFilms",
   components: {NavBar, TableLikedFilms},
   computed: mapGetters(['allPageFilms']),
+  data(){
+    return{
+      loaded: false
+    }
+  },
 
 
 mounted() {
   this.$store.dispatch('pushAllPages')
-
+  this.loaded = true
 }
 
 

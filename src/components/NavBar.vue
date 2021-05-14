@@ -18,10 +18,23 @@
               </div>
             </b-nav-item-dropdown>
 
-
+          <div>
           <RegisterModal v-if="!username"/>
-          <b-button v-else lg="4" class="pb-2" variant="danger" v-b-modal.modal-prevent-closing>{{ username }}</b-button>
-            <!-- Using 'button-content' slot -->
+
+
+            <!-- Using modifiers -->
+            <b-button v-else id="show-btn" @click="showModal" lg="4" class="pb-2" variant="danger" >{{ username }}</b-button>
+            <b-modal ref="my-modal" hide-footer title="Using Component Methods">
+              <div class="d-block text-center">
+                <h3>Точно хотите выйти?</h3>
+              </div>
+              <b-button class="mt-3" variant="outline-danger" block @click="hideModal">Нет</b-button>
+              <b-button class="mt-2" variant="outline-warning" block @click="clearLocalStorage">Да</b-button>
+            </b-modal>
+
+          </div>
+
+
 
         </b-navbar-nav>
 
@@ -42,6 +55,18 @@ export default {
     return{
       username: localStorage.username
     }
+  },
+  methods: {
+    clearLocalStorage(){
+      localStorage.clear()
+      window.location.reload()
+    },
+    showModal() {
+      this.$refs['my-modal'].show()
+    },
+    hideModal() {
+      this.$refs['my-modal'].hide()
+    },
   }
 }
 

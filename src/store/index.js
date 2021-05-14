@@ -26,9 +26,10 @@ export default new Vuex.Store({
                  })
 
             }
-            this.state.load = true
+
             ctx.commit('updatePageActors', this.state.pageActors)
          ctx.commit('updatePageFilms', this.state.pageFilms)
+         this.state.load = true
         }
     },
     mutations:{

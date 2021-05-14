@@ -19,10 +19,9 @@ export default {
   components: {FilmItem},
   data(){
     return{
-      user: '',
       username: '',
       users: [],
-      likedFilms: [Array],
+      likedFilms: [],
       pageNumber: 0,
       filmNumber: 0,
       loaded: false
@@ -32,28 +31,35 @@ export default {
     allPageFilms: [Array]
   },
   mounted() {
-    this.user = localStorage.user
+
     this.username = localStorage.username
+
     axios.get('http://localhost:5000/auth/users')
         .then(response => {
           this.users = response.data
+
+          this.findLikedElement(this.allPageFilms, this.pageNumber, this.filmNumber)
+          this.loaded = true
         })
-    this.findLikedElement(this.allPageFilms, this.pageNumber, this.filmNumber)
-    this.loaded = true
+
+
+
   },
   methods: {
     findLikedElement(item, i, j) {
+      console.log(item.length , this.users.length)
       if (item.length>0 && this.users.length>0) {
-        console.log(123)
         for (let k of this.users) {
           if (k.username === this.username) {
-            console.log(456)
             for (i = 0; i < 100; i++) {
               for (j = 0; j < 20; j++) {
-                for (let n; n<k.film.length; n++)
-                if (item[i][j].original_title === k.film[n].filmName) {
-                  console.log(678)
-                  this.likedFilms.push(item[i][j])
+                for (let n = 0; n < k.film.length; n++) {
+                  if (item[i][j].original_title === k.film[n].filmName ) {
+                    if(k.film[n].like) {
+                      console.log(123)
+                      this.likedFilms.push(item[i][j])
+                    }
+                  }
                 }
               }
             }

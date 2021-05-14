@@ -12,5 +12,7 @@ router.post('/registration',[
 router.post('/login', controller.login)
 router.get('/users', controller.getUsers)
 router.put('/likes', controller.getLikes)
+router.put('/rating', controller.getRating)
+router.put('/stars', controller.getStars)
 
 module.exports = router

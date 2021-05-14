@@ -100,6 +100,49 @@ class AuthController {
             console.log(e)
         }
     }
+    async getRating(req, res){
+        res.set('Access-Control-Allow-Origin', '*')
+        const {username,filmName, rating} = req.body.film
+        // console.log(req.body.like)
+        const user = await User.findOne({username})
+        console.log(user)
+        if(user) {
+            if (user.film.length > 0) {
+                for (let i of user.film) {
+                    if (i.filmName === filmName && username === user.username) {
+                        i.rating = rating
+                        const updatedUser = await user.save()
+                        console.log(updatedUser)
+                        return res.json({user: updatedUser, message: `fILM NAME ALREADY EXIST ${rating}`})
+                    }
+                }
+
+            }
+            user.film.push({filmName, rating})
+            const updatedUser = await user.save()
+            console.log(updatedUser)
+            res.json({user: updatedUser, message: `Film added to likes array ${rating}`})
+        }
+    }
+
+    async getStars(req, res){
+        res.set('Access-Control-Allow-Origin', '*')
+        const {username, rating5StarFilms, rating4StarFilms, rating3StarFilms, rating2StarFilms, rating1StarFilms} = req.body.ratingStarsFilms
+        // console.log(req.body.like)
+        const user = await User.findOne({username})
+        if (user){
+            if (user.ratingStarsFilms.length > 0) {
+                user.ratingStarsFilms = req.body
+
+            }
+
+            user.ratingStarsFilms.push({rating5StarFilms, rating4StarFilms, rating3StarFilms, rating2StarFilms, rating1StarFilms})
+            const updatedUser = await user.save()
+            console.log(updatedUser)
+            res.json({user: updatedUser, message: `Films added to array ${rating5StarFilms}`})
+        }
+    }
+
 
 }
 

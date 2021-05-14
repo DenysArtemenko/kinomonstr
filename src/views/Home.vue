@@ -9,6 +9,7 @@
                 :allPageActors="allPageActors"
     />
     </div>
+    <b-button  @click="goToLikedFilm" lg="4" class="pb-2" variant="danger" >Понравившиеся фильмы</b-button>
     <FilmTrends v-if="loadingFilm" :films="films "/>
     <SerialTrends v-if="loadingFilm" :films="films"/>
     <ActorTrends v-if="loadingActor" :actors="actors"/>
@@ -69,6 +70,12 @@ export default {
             this.loadingFilm = true
          })
 
+  },
+
+  methods:{
+    goToLikedFilm(){
+      this.$router.push('/likedFilms')
+    }
   },
 
   // async mounted(){
