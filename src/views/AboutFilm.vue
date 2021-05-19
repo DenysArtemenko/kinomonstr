@@ -12,10 +12,15 @@
         </div>
         <div class="about__film-genres">
           <FilmGenre class="about__film-genres"
-                     v-for="(item,idx) in filmGenres" :key="idx"
+                     v-for="(item,id) in genresed" :key="id"
                      :item = "item"
-                     :filmGenresArray = "filmGenresArray"
-
+          />
+        </div>
+        <div class="about__film-genres">
+          <p>В главных ролях:</p>
+          <FilmGenre class="about__film-genres"
+                     v-for="(item,idx) in actored" :key="idx"
+                     :item = "item"
           />
         </div>
 
@@ -100,6 +105,38 @@ export default {
       }
       return rating
     },
+    genresed(){
+      let genre = []
+      if(this.load){
+        
+        for (let i = 0; i < this.findElement(this.allPageFilms,this.pageNumber,this.filmNumber).genre_ids.length; i++) {
+          for (let j = 0; j < this.genres.length; j++) {
+            if (this.findElement(this.allPageFilms,this.pageNumber,this.filmNumber).genre_ids[i] === this.genres[j].id){
+              genre.push(this.genres[j].name)
+            }
+          }
+        }
+      }
+      return genre
+    },
+    actored(){
+      let actor = []
+      console.log(this.allActors)
+      console.log(123)
+      if(this.loading){
+        if(this.findElement(this.allPageFilms, this.pageNumber, this.filmNumber).id === this.idFilm){
+        for (let i = 0; i < 4; i++) {
+                actor.push(this.allActors[i].name)
+              }
+        } else {
+          this.getActors()
+        }
+      }
+      
+
+     
+      return actor
+    }
 
   },
   data() {
@@ -127,6 +164,11 @@ export default {
       filmGenresArray: [],
       actorsArray: [],
       actorsFilmArray: [],
+      topActors: [],
+      idFilm: [],
+      allActors: [],
+      load: false,
+      loading: false,
 
       pageNumber: 0,
       filmNumber: 0,
@@ -143,21 +185,14 @@ export default {
     }
   },
 
-  // created() {
-  //   this.$store.commit('allRecommendFilms', this.allRecommendFilms);
-  //   this.$store.commit('limitRecommendFilms', this.limitRecommendFilms);
-  // },
+
   mounted(){
     // console.log(this.$route.params.title)
      this.$store.dispatch('pushAllPages')
     this.loaded = true
-     let id = this.findElement(this.allPageFilms,this.pageNumber,this.filmNumber).id
-     axios
-         .get("https://api.themoviedb.org/3/movie/"+id+"/credits?api_key=2a235b91059bbee0cb0dad81130d7beb&language=ru")
-         .then((response) => {
-          let allActors =  response.data
-           console.log(allActors)
-         })
+
+
+
      axios.get('http://localhost:5000/auth/users')
          .then(response => {
            this.users = response.data
@@ -179,6 +214,7 @@ export default {
            this.findRecommendationByGenre()
 
            this.getGenres()
+           this.getActors()
            this.filmGenresArray = this.findElement(this.allPageFilms,this.pageNumber,this.filmNumber).genre_ids
 
 
@@ -199,13 +235,14 @@ export default {
 
   methods: {
 
+   
     getGenres(){
       axios
           .get("https://api.themoviedb.org/3/genre/movie/list?api_key=2a235b91059bbee0cb0dad81130d7beb&language=en-US")
           .then((response) => {
             // console.log(response.data.results)
             this.genres = response.data.genres
-            this.loaded = true
+            this.load = true
             for (let i = 0; i < this.findElement(this.allPageFilms,this.pageNumber,this.filmNumber).genre_ids.length; i++) {
               for (let j = 0; j < this.genres.length; j++) {
                 if (this.findElement(this.allPageFilms,this.pageNumber,this.filmNumber).genre_ids[i] === this.genres[j].id){
@@ -214,6 +251,23 @@ export default {
               }
             }
 
+          })
+          
+    },
+     getActors(){
+      this.idFilm = this.findElement(this.allPageFilms, this.pageNumber, this.filmNumber).id
+
+      axios
+          .get("https://api.themoviedb.org/3/movie/" + this.idFilm + "/credits?api_key=2a235b91059bbee0cb0dad81130d7beb&language=ru")
+          .then((response) => {
+            this.allActors = response.data.cast
+            this.loading = true
+ 
+            for (let i = 0; i < 4; i++) {
+              this.topActors.push(this.allActors[i].name)
+            }
+            console.log(this.topActors)
+                
           })
     },
 

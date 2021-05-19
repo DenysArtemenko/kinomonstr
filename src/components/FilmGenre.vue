@@ -1,6 +1,6 @@
 <template>
   <div>
-      <p @click="routeId">{{item}}</p>
+    <p @click="routeId">{{item}} </p>
   </div>
 </template>
 
@@ -11,7 +11,6 @@ export default {
   name: "filmGenre",
   props:{
     item: String,
-
   },
   mounted() {
     axios
@@ -29,6 +28,8 @@ export default {
       for (let i = 0; i < this.genres.length; i++) {
           if (this.genres[i].name === this.item) {
            return  this.$router.push({ path: `/films/genre/${this.genres[i].id}` })
+          } else {
+            this.$router.push({ path: `/${this.item}`})
           }
       }
 
@@ -49,5 +50,8 @@ p{
   color: #FFFFFF;
   text-decoration: none;
 
+}
+p:hover{
+  cursor: pointer;
 }
 </style>
