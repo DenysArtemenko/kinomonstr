@@ -102,16 +102,16 @@ export default {
       axios.get('http://localhost:5000/auth/users').then(response => {
 
         this.users = response.data
-
+        const bcrypt = require('bcryptjs')
         for (let i = 0; i < this.users.length; i++) {
-          // console.log(this.users[i].username , this.username)
-          if (this.username === this.users[i].username) {
+          const validPassword = bcrypt.compareSync(this.password, this.users[i].password)
+          if (this.username === this.users[i].username && validPassword) {
             localStorage.username = this.username
             return window.location.reload()
 
           }
         }
-        if(this.username !== this.users[this.users.length -1].username){
+        if(this.username !== this.users[this.users.length -1].username && this.password !== this.users[this.users.length -1].password){
           alert("Неверный логин или пароль")
         }
       })

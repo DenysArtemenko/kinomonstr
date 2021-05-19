@@ -3,12 +3,10 @@
     <NavBar class="navbar__actor"/>
     <div class="container">
       <h1>Фильмы</h1>
-      <div class="row actor__page-genres">
-        <h2>Боевик</h2>
-        <h2>Комедия</h2>
-        <h2>Фантастика</h2>
-        <h2>Детектив</h2>
-        <h2>Исторический</h2>
+      <div v-if="loaded" class="row films__block-table" >
+        <Genre v-for="(genre,idx) in genres" :key="idx"
+                :genre = genre
+      />
       </div>
     </div>
 <!--    <SearchForm v-if="loadingFilm" :films="films"-->
@@ -24,13 +22,15 @@
 <script>
 import NavBar from "../components/NavBar";
 // import SearchResult from "../components/SearchResult";
-// import axios from "axios";
+import axios from "axios";
 // import SearchForm from "../components/SearchForm";
 import TableFilms from "../components/TableFilms";
 import {mapGetters} from "vuex";
+import Genre from "../components/Genre";
 export default {
   name: "FilmsPage",
   components: {
+    Genre,
     TableFilms,
     // SearchForm,
     // SearchResult,
@@ -43,7 +43,8 @@ export default {
     return{
       films: [],
       actors: [],
-      loadingFilm: false,
+      loaded: false,
+      genres: [],
     }
   },
 
@@ -51,15 +52,16 @@ export default {
 
   mounted() {
     this.$store.dispatch('pushAllPages')
-    console.log(this.allPageFilms)
-  //   axios
-  //       .get("https://api.themoviedb.org/3/movie/popular?api_key=2a235b91059bbee0cb0dad81130d7beb&language=en-US&page=1")
-  //       .then((response) => {
-  //         // console.log(response.data.results)
-  //         this.films = response.data.results
-  //         this.loadingFilm = true
-  //       })
-  //
+    axios
+        .get("https://api.themoviedb.org/3/genre/movie/list?api_key=2a235b91059bbee0cb0dad81130d7beb&language=en-US")
+        .then((response) => {
+          // console.log(response.data.results)
+          this.genres = response.data.genres
+          this.loaded = true
+          console.log(this.genres)
+
+        })
+
   }
 
 }
@@ -89,13 +91,12 @@ export default {
 
     background: #000000;
   }
-  .actor__page-genres{
-    justify-content: space-between;
-    margin: 50px 0;
-    color: #aaaaaa;
-  }
+
   .navbar__actor{
     background: black;
+  }
+  .films__block-table{
+    justify-content: center;
   }
 
 

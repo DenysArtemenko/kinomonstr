@@ -5,7 +5,15 @@ import axios from "axios";
 Vue.use(Vuex)
 
 export default new Vuex.Store({
+    state:{
+        pageActors: [],
+        pageFilms: [],
+        load: false,
+        allRecommendFilms: [],
+        limitRecommendFilms:[]
+    },
     actions:{
+
      async pushAllPages(ctx){
 
          for (let i = 1; i <= 100; i++) {
@@ -27,8 +35,9 @@ export default new Vuex.Store({
 
             }
 
-            ctx.commit('updatePageActors', this.state.pageActors)
+         ctx.commit('updatePageActors', this.state.pageActors)
          ctx.commit('updatePageFilms', this.state.pageFilms)
+
          this.state.load = true
         }
     },
@@ -38,14 +47,22 @@ export default new Vuex.Store({
         },
         updatePageFilms(state, pages) {
             state.pageFilms = pages
+        },
+        updateAllRecommendFilms(state, recFilms) {
+            state.allRecommendFilms = recFilms
+        },
+        updateLimitRecommendFilms(state, recFilms) {
+            state.limitRecommendFilms = recFilms
         }
     },
-    state:{
-        pageActors: [],
-        pageFilms: [],
-        load: false
-    },
+
     getters:{
+        allRecommendFilms(state){
+                return state.allRecommendFilms
+        },
+        limitRecommendFilms(state){
+                return state.limitRecommendFilms
+        },
         allPageActors(state){
             if (state.load)
             return state.pageActors

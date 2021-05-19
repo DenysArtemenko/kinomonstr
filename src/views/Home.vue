@@ -11,7 +11,7 @@
     </div>
     <b-button  @click="goToLikedFilm" lg="4" class="pb-2" variant="danger" >Понравившиеся фильмы</b-button>
     <FilmTrends v-if="loadingFilm" :films="films "/>
-    <SerialTrends v-if="loadingFilm" :films="films"/>
+<!--    <SerialTrends v-if="loadingFilm" :films="films"/>-->
     <ActorTrends v-if="loadingActor" :actors="actors"/>
 
   </div>
@@ -22,7 +22,7 @@ import NavBar from "../components/NavBar";
 import Title from "../components/Title";
 import SearchForm from "../components/SearchForm";
 import FilmTrends from "../components/FilmTrends";
-import SerialTrends from "../components/SerialTrends"
+// import SerialTrends from "../components/SerialTrends"
 import axios from "axios";
 import ActorTrends from "../components/ActorTrends";
 import {mapGetters} from "vuex";
@@ -31,7 +31,9 @@ import {mapGetters} from "vuex";
 
 export default {
   name: "Home",
-  components: {ActorTrends, FilmTrends, SearchForm, Title, NavBar, SerialTrends},
+  components: {ActorTrends, FilmTrends, SearchForm, Title, NavBar,
+    // SerialTrends
+  },
   computed: mapGetters(['allPageActors', 'allPageFilms']),
 
   data(){

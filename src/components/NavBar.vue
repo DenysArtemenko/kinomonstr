@@ -1,7 +1,7 @@
 <template>
   <div >
     <b-navbar class="navbar" cl toggleable="lg" type="dark" >
-      <router-link to="/"><b-navbar-brand ><img src="../assets/klipartz.png" alt=""></b-navbar-brand></router-link>
+      <router-link to="/"><b-navbar-brand ><img src="../assets/vuecinema.png" alt=""></b-navbar-brand></router-link>
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
       <b-collapse id="nav-collapse" is-nav>
@@ -77,7 +77,7 @@ export default {
 .navbar{
   background-color: transparent;
   position: relative;
-  margin: 0 3.5rem;
+  margin: 0 3.5rem 0 0;
   height: 100%;
 }
 .lang__dropdown-box{
@@ -104,6 +104,10 @@ export default {
 }
 .lang__dropdown-item:hover{
   background-color: orange;
+}
+img{
+  width: 500px;
+  height: 200px;
 }
 
 

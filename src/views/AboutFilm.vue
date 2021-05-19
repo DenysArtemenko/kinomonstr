@@ -10,30 +10,33 @@
         <div class="col-lg-6 about__film-overview">
       <p><span>Описание:</span> <br> {{findElement(allPageFilms,pageNumber,filmNumber).overview }}</p>
         </div>
-        <div class="btns__likes row">
-           <b-button v-if="loaded" :class='"heart " + liked' variant="outline" @click="clickButtonLikes()"> </b-button>
-          <star-rating class="about__film-stars" :rating="ratinged" @rating-selected ="clickStarRating"  @click="clickStarRating(clickStarRating)"/>
+        <div class="about__film-genres">
+          <FilmGenre class="about__film-genres"
+                     v-for="(item,idx) in filmGenres" :key="idx"
+                     :item = "item"
+                     :filmGenresArray = "filmGenresArray"
+
+          />
+        </div>
+
+        <div class="btns__likes col-lg-12">
+          <div class="row">
+
+           <b-button v-if="loaded && user" :class='"heart " + liked' variant="outline" @click="clickButtonLikes()"> </b-button>
+          <star-rating v-if="user" class="about__film-stars" :rating="ratinged" @rating-selected ="clickStarRating"  @click="clickStarRating(clickStarRating)"/>
+          </div>
 <!--           <b-button v-if="loaded" :class='"btn__liked " + liked ' variant="outline" @click="clickButtonLikes()">Like </b-button>-->
         </div>
       </div>
-      <h2>Рекомендации:</h2>
+
     </div>
     <div class="films__block container">
-<!--      <flickity ref="flickity" :options="flickityOptions" class="carousel__box">-->
-<!--        <div class="slide d-flex "  v-for="(item,idx) in recommendFilmsArray" :key="idx" >-->
-<!--          <div class="films__box " >-->
-<!--            <FilmItem-->
-<!--                  :item="item"-->
-<!--            />-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </flickity>-->
-      <div v-if="loaded" class="row films__block-table">
-        <FilmItem class="film__item"
-
-                  v-for="(item,idx) in allRecommendFilms" :key="idx"
-                  :item="item"
-        />
+      <Recommendation class="row films__block-table" v-if="loaded && user"
+                      :allRecommendFilms="allRecommendFilms"
+                      :limitRecommendFilms="limitRecommendFilms"
+      />
+      <div v-else>
+        <p>Чтобы видеть рекомендации нужна авторизация</p>
       </div>
     </div>
   </div>
@@ -42,20 +45,26 @@
 <script>
 import NavBar from "../components/NavBar";
 import {mapGetters} from "vuex";
-import FilmItem from "../components/FilmItem";
+// import FilmItem from "../components/FilmItem";
 // import flickity from "vue-flickity";
 import axios from "axios";
 import StarRating from 'vue-star-rating'
+import FilmGenre from "../components/FilmGenre";
+import Recommendation from "../components/Recommendation";
+
 export default {
   name: "AboutFilm",
   components: {
-    FilmItem,
+    Recommendation,
+    FilmGenre,
+    // FilmItem,
      NavBar,
     // flickity,
     StarRating
   },
   computed: {
     ...mapGetters(['allPageFilms']),
+    ...mapGetters(['allPageActors']),
     liked() {
       let like= false
       for (let i = 0; i < this.users.length; i++) {
@@ -73,7 +82,6 @@ export default {
           }
         }
       }
-      console.log(like)
       return like
     },
     ratinged() {
@@ -84,15 +92,12 @@ export default {
             for (let k of this.users[i].film) {
               if (k.filmName === this.$route.params.title) {
                 rating = k.rating
-                console.log(rating)
-                console.log(k.filmName.toString() , this.$route.params.title)
                 return rating;
               }
             }
           }
         }
       }
-      console.log(rating)
       return rating
     },
 
@@ -106,6 +111,7 @@ export default {
       user: '',
       loaded: false,
       username: localStorage.username,
+      ratingAllStarFilms: [],
       rating5StarFilms: [],
       rating4StarFilms: [],
       rating3StarFilms: [],
@@ -116,9 +122,15 @@ export default {
       genres_id: 0,
       genresFilmsArray:[],
       allRecommendFilms:[],
+      limitRecommendFilms:[],
+      filmGenres: [],
+      filmGenresArray: [],
+      actorsArray: [],
+      actorsFilmArray: [],
 
       pageNumber: 0,
       filmNumber: 0,
+      actorNumber: 0,
       flickityOptions: {
         initialIndex: 0,
         prevNextButtons: false,
@@ -131,27 +143,33 @@ export default {
     }
   },
 
-
-   mounted(){
+  // created() {
+  //   this.$store.commit('allRecommendFilms', this.allRecommendFilms);
+  //   this.$store.commit('limitRecommendFilms', this.limitRecommendFilms);
+  // },
+  mounted(){
     // console.log(this.$route.params.title)
      this.$store.dispatch('pushAllPages')
-     this.loaded = true
-
+    this.loaded = true
+     let id = this.findElement(this.allPageFilms,this.pageNumber,this.filmNumber).id
+     axios
+         .get("https://api.themoviedb.org/3/movie/"+id+"/credits?api_key=2a235b91059bbee0cb0dad81130d7beb&language=ru")
+         .then((response) => {
+          let allActors =  response.data
+           console.log(allActors)
+         })
      axios.get('http://localhost:5000/auth/users')
          .then(response => {
            this.users = response.data
            this.ratingStarsFilms()
-           console.log(this.users)
            for (let i = 0; i < this.users.length; i++) {
 
              if (this.users[i].username === localStorage.username) {
-               console.log(this.users[i].username , localStorage.username)
                this.user = this.users[i]
                localStorage.user = this.users[i]
                for (let j = 0; j < this.users[i].film.length; j++) {
                  if (this.users[i].film[j].filmName === this.$route.params.title) {
                    this.rating = this.users[i].film[j].rating
-                   console.log(this.rating)
                  }
                }
              }
@@ -159,7 +177,15 @@ export default {
            this.findRecommendation1(this.allPageFilms,this.pageNumber,this.filmNumber)
            this.findGenre_ids()
            this.findRecommendationByGenre()
+
+           this.getGenres()
+           this.filmGenresArray = this.findElement(this.allPageFilms,this.pageNumber,this.filmNumber).genre_ids
+
+
+           this.findRecommendationByActor()
            this.myArrayToSet()
+           this.$store.commit('updateAllRecommendFilms', this.allRecommendFilms);
+           this.$store.commit('updateLimitRecommendFilms', this.limitRecommendFilms);
          })
 
 
@@ -173,14 +199,60 @@ export default {
 
   methods: {
 
+    getGenres(){
+      axios
+          .get("https://api.themoviedb.org/3/genre/movie/list?api_key=2a235b91059bbee0cb0dad81130d7beb&language=en-US")
+          .then((response) => {
+            // console.log(response.data.results)
+            this.genres = response.data.genres
+            this.loaded = true
+            for (let i = 0; i < this.findElement(this.allPageFilms,this.pageNumber,this.filmNumber).genre_ids.length; i++) {
+              for (let j = 0; j < this.genres.length; j++) {
+                if (this.findElement(this.allPageFilms,this.pageNumber,this.filmNumber).genre_ids[i] === this.genres[j].id){
+                  this.filmGenres.push(this.genres[j].name)
+                }
+              }
+            }
+
+          })
+    },
+
     myArrayToSet(){
+      let timeArray
       console.log(this.genresFilmsArray)
       for (let i = 0; i < this.recommendFilmsArray.length; i++) {
         this.genresFilmsArray.push(this.recommendFilmsArray[i])
       }
-      console.log(this.genresFilmsArray)
+      for (let i = 0; i < this.ratingAllStarFilms.length; i++) {
+        for (let j = 0; j < this.genresFilmsArray.length; j++) {
+        if (this.ratingAllStarFilms[i] === this.genresFilmsArray[j].original_title){
+          this.genresFilmsArray.splice(j,1)
+        }
+        }
+      }
         this.allRecommendFilms = new Set(this.genresFilmsArray)
+        timeArray = Array.from(this.allRecommendFilms)
+      for (let i = 0; i < 4; i++) {
+        this.limitRecommendFilms.push(timeArray[i])
+      }
+      this.allRecommendFilms = timeArray
+
+      for (let i = 0; i < this.actorsFilmArray.length; i++) {
+        this.allRecommendFilms.push(this.actorsFilmArray[i])
+      }
       console.log(this.allRecommendFilms)
+      this.allRecommendFilms = new Set(this.allRecommendFilms)
+      this.allRecommendFilms = Array.from(this.allRecommendFilms)
+      console.log(this.allRecommendFilms)
+      for (let i = 0; i < this.ratingAllStarFilms.length; i++) {
+        for (let j = 0; j < this.allRecommendFilms.length; j++) {
+          if (this.ratingAllStarFilms[i] === this.allRecommendFilms[j].original_title){
+            this.allRecommendFilms.splice(j,1)
+          }
+        }
+      }
+
+
     },
 
     findElement(item, i, j) {
@@ -204,6 +276,63 @@ export default {
       }
       console.log(this.genresFilmsArray)
     },
+    findRecommendationByActor(){
+
+      if (this.loaded) {
+        let count = 0
+        // let newCount = 0
+          for (let i = 0; i < this.allPageActors.length; i++) {
+            for (let j = 0; j < this.allPageActors[i].length; j++) {
+              if (this.allPageActors[i][j].length>0) {
+                for (let k = 0; k < this.allPageActors[i][j].known_for.length; k++) {
+
+                  for (let l = 0; l < this.rating5StarFilms.length; l++) {
+
+                    if (this.allPageActors[i][j].known_for[k].original_title === this.rating5StarFilms[l] ||
+                        this.allPageActors[i][j].known_for[k].original_name === this.rating5StarFilms[l]) {
+                      count++
+                    }
+                    if (count >= 2) {
+                      // console.log(this.allPageActors[i][j].name,this.rating5StarFilms[l], count)
+                      this.actorsArray.push(this.allPageActors[i][j])
+                    }
+                  }
+                }
+              }
+              count = 0
+            }
+          }
+          let timeArray = new Set(this.actorsArray)
+          let timeFilmArray = []
+        this.actorsArray = Array.from(timeArray)
+        for (let i = 0; i < this.actorsArray.length; i++) {
+          for (let j = 0; j < this.actorsArray[i].known_for.length; j++) {
+            if (this.actorsArray[i].known_for[j].original_title === undefined){
+              timeFilmArray.push(this.actorsArray[i].known_for[j].name)
+            } else {
+              timeFilmArray.push(this.actorsArray[i].known_for[j].original_title)
+            }
+          }
+        }
+
+        this.actorsFilmArray = new Set(timeFilmArray)
+        this.actorsFilmArray = Array.from(this.actorsFilmArray)
+        let array = []
+        for (let i = 0; i < 100; i++) {
+          for (let j = 0; j < 20; j++) {
+            for (let k = 0; k < this.actorsFilmArray.length; k++) {
+              if (this.allPageFilms[i][j].original_title === this.actorsFilmArray[k]) {
+                array.push(this.allPageFilms[i][j])
+              }
+            }
+          }
+        }
+        this.actorsFilmArray = array
+        console.log(this.actorsFilmArray)
+      }
+
+
+    },
     ratingStarsFilms(){
 
       for (let i = 0; i < this.users.length; i++) {
@@ -219,6 +348,11 @@ export default {
               this.rating2StarFilms.push(this.users[i].film[j].filmName)
             } else if (this.users[i].film[j].rating === 1){
               this.rating1StarFilms.push(this.users[i].film[j].filmName)
+            }
+            if(this.users[i].film[j].rating === 5 || this.users[i].film[j].rating === 4 || this.users[i].film[j].rating === 3 ||
+                this.users[i].film[j].rating === 2 || this.users[i].film[j].rating === 1){
+              this.ratingAllStarFilms.push(this.users[i].film[j].filmName)
+
             }
           }
         }
@@ -271,7 +405,6 @@ export default {
         }
         count = 0
       }
-      console.log(recommendFilmsName)
       if (item.length>0) {
         for ( i = 0; i < 100; i++) {
           for (j = 0; j < 20; j++) {
@@ -297,20 +430,18 @@ export default {
       let count = 0
       let countSimilar = 0
       for (let i = 0; i < genresArray.length; i++) {
-        for (let j = 1; j < genresArray.length; j++) {
-          if (genresArray[i] === genresArray[j]){
+        for (let j = 0; j < genresArray.length; j++) {
+          if (genresArray[i] === genresArray[j] && i !== j){
             count++
           }
         }
         if (countSimilar < count) {
           countSimilar = count
           this.genres_id = genresArray[i]
-          console.log(genresArray[i])
         }
         count = 0
 
       }
-      console.log(countSimilar)
 
       },
 
@@ -336,7 +467,6 @@ export default {
            this.users = response.data
            for (let i = 0; i < this.users.length; i++) {
              if (this.users[i].username === localStorage.username) {
-               console.log(this.users[i].username , localStorage.username)
                localStorage.user = this.users[i]
              }
            }
@@ -348,7 +478,6 @@ export default {
 
     async clickStarRating(rating){
       this.rating= rating;
-      console.log(this.rating)
      const {data} = await axios.put('http://localhost:5000/auth/rating',  {
         film: {
           username:localStorage.username,
@@ -362,12 +491,10 @@ export default {
             this.users = response.data
             for (let i = 0; i < this.users.length; i++) {
               if (this.users[i].username === localStorage.username) {
-                console.log(this.users[i].username , localStorage.username)
                 localStorage.user = this.users[i]
                 for (let j = 0; j < this.users[i].film.length; j++) {
                   if (this.users[i].film[j].filmName === this.$route.params.title) {
                     this.rating = this.users[i].film[j].rating
-                    console.log(this.rating)
                   }
                 }
               }
@@ -442,6 +569,11 @@ h2{
 }
 .about__film-stars{
   margin-left: 50px;
+}
+.about__film-genres{
+  display: flex;
+  justify-content: space-between;
+  margin-right: 10px;
 }
 
 /*.true{*/

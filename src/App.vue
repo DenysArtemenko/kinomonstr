@@ -41,6 +41,9 @@ a{
 /*button{*/
 /*  background-color: #e50914 !important;*/
 /*}*/
-
+#app{
+  background-color: #000 !important;
+  min-height: 100vh;
+}
 
 </style>

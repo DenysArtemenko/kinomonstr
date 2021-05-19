@@ -46,6 +46,7 @@ export default {
 
   async mounted(){
     await this.$store.dispatch('pushAllPages')
+    console.log(this.allPageActors)
     this.loaded = true
 
   },

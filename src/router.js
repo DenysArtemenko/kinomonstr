@@ -48,6 +48,16 @@ export default new Router({
             name: 'Name',
             component: () => import ('./views/AboutActor')
         },
+        {
+            path: '/films/genre/:id',
+            name: 'Name',
+            component: () => import ('./views/GenrePage')
+        },
+        {
+            path: '/films/user/recommendation',
+            name: 'Name',
+            component: () => import ('./views/RecommendationPage')
+        },
 
 
 
