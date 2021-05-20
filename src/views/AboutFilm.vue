@@ -68,8 +68,7 @@ export default {
     StarRating
   },
   computed: {
-    ...mapGetters(['allPageFilms']),
-    ...mapGetters(['allPageActors']),
+    ...mapGetters(['allPageFilms', 'allPageActors', 'topFilms']),
     liked() {
       let like= false
       for (let i = 0; i < this.users.length; i++) {
@@ -165,7 +164,7 @@ export default {
       actorsArray: [],
       actorsFilmArray: [],
       topActors: [],
-      idFilm: [],
+      idFilm: 0,
       allActors: [],
       load: false,
       loading: false,
@@ -187,12 +186,8 @@ export default {
 
 
   mounted(){
-    // console.log(this.$route.params.title)
      this.$store.dispatch('pushAllPages')
     this.loaded = true
-
-
-
      axios.get('http://localhost:5000/auth/users')
          .then(response => {
            this.users = response.data
@@ -222,6 +217,7 @@ export default {
            this.myArrayToSet()
            this.$store.commit('updateAllRecommendFilms', this.allRecommendFilms);
            this.$store.commit('updateLimitRecommendFilms', this.limitRecommendFilms);
+           console.log(this.topFilms)
          })
 
 
@@ -234,7 +230,25 @@ export default {
 
 
   methods: {
+    getFilms(){
+      console.log(this.allPageActors)
+      console.log(this.allPageActors.length)
+      this.idActor = this.findElement(this.allPageActors, this.pageNumber, this.actorNumber).id
+      console.log(this.idActor)
+      axios
+          .get("https://api.themoviedb.org/3/person/"+this.idActor+"/movie_credits?api_key=2a235b91059bbee0cb0dad81130d7beb&language=ru-RU")
+          .then((response) => {
+            this.allFilms = response.data.cast
 
+            console.log(this.allFilms)
+            for (let i = 0; i < 12; i++) {
+              this.topFilms.push(this.allFilms[i])
+            }
+            console.log(this.topFilms)
+
+          })
+      this.loading = true
+    },
    
     getGenres(){
       axios

@@ -3,7 +3,7 @@
     <NavBar/>
 
     <Recommendation
-        :limitRecommendFilms="limitRecommendFilms"
+
     />
 
   </div>
@@ -15,16 +15,8 @@ import Recommendation from "../components/Recommendation";
 export default {
   name: "RecommendationPage",
   components: {Recommendation, NavBar},
-  data(){
-    return{
-      allRecommendFilms: [],
-      limitRecommendFilms: []
-    }
-  },
-  mounted() {
 
-    console.log(this.limitRecommendFilms)
-  }
+
 }
 </script>
 

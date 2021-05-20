@@ -10,35 +10,38 @@ export default new Vuex.Store({
         pageFilms: [],
         load: false,
         allRecommendFilms: [],
-        limitRecommendFilms:[]
+        limitRecommendFilms: [],
+        topFilms: []
     },
     actions:{
 
-     async pushAllPages(ctx){
-
+     async pushAllPages({state,commit}){
+         let allActors =[]
+         let allFilms = []
          for (let i = 1; i <= 100; i++) {
-             let allActors =[]
-             let allFilms = []
+
                 axios
                     .get("https://api.themoviedb.org/3/person/popular?api_key=2a235b91059bbee0cb0dad81130d7beb&language=ru&page="+i)
                     .then((response) => {
                         allActors =  response.data.results
-                        this.state.pageActors.push(allActors)
+                        state.pageActors.push(allActors)
+
                     })
              axios
                  .get("https://api.themoviedb.org/3/movie/popular?api_key=2a235b91059bbee0cb0dad81130d7beb&language=ru-US&page="+i)
                  .then((response) => {
                      // console.log(response.data.results)
                      allFilms = response.data.results
-                     this.state.pageFilms.push(allFilms)
+                     state.pageFilms.push(allFilms)
                  })
 
             }
 
-         ctx.commit('updatePageActors', this.state.pageActors)
-         ctx.commit('updatePageFilms', this.state.pageFilms)
 
-         this.state.load = true
+         commit('updatePageActors', state.pageActors)
+         commit('updatePageFilms', state.pageFilms)
+
+         // state.load = true
         }
     },
     mutations:{
@@ -53,7 +56,12 @@ export default new Vuex.Store({
         },
         updateLimitRecommendFilms(state, recFilms) {
             state.limitRecommendFilms = recFilms
+        },
+        updateTopFilms(state, topFilms) {
+            state.topFilms = topFilms
+
         }
+
     },
 
     getters:{
@@ -64,12 +72,16 @@ export default new Vuex.Store({
                 return state.limitRecommendFilms
         },
         allPageActors(state){
-            if (state.load)
+
             return state.pageActors
         },
-        allPageFilms(state){
-            if (state.load)
-                return state.pageFilms
+        allPageFilms(state) {
+
+            return state.pageFilms
+        },
+        topFilms(state){
+
+            return state.topFilms
         }
     },
 
